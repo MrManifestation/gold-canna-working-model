@@ -21,18 +21,6 @@ The Shopify MCP server provides comprehensive inventory management integration w
 - `shopify_get_orders`: Retrieve orders from Shopify
 - `shopify_create_collection`: Create a product collection in Shopify
 
-**Setup:**
-
-Get your Shopify Admin API access token from your Shopify admin panel. Configure the server:
-
-```json
-{
-  "shopDomain": "your-store.myshopify.com",
-  "accessToken": "your-access-token",
-  "apiVersion": "2025-04"
-}
-```
-
 ### Google Sheets MCP Server
 
 The Google Sheets MCP server enables inventory data management and reporting through Google Sheets.
@@ -52,98 +40,37 @@ The Google Sheets MCP server enables inventory data management and reporting thr
 - `sheets_create_pivot`: Create a pivot table for inventory analysis
 - `sheets_format_sheet`: Apply formatting to inventory sheets
 
-**Setup:**
+## Running the MCP Utilities Locally
 
-Create a Google Cloud service account and download credentials JSON. Share your Google Sheet with the service account email. Configure the server:
-
-```json
-{
-  "credentials": {
-    "client_email": "service-account@project.iam.gserviceaccount.com",
-    "private_key": "-----BEGIN PRIVATE KEY-----...",
-    "project_id": "your-project"
-  },
-  "spreadsheetId": "your-spreadsheet-id"
-}
-```
-
-## Running the MCP Servers
-
-Install dependencies:
+Install dependencies (Node.js 18+):
 
 ```bash
-cd server/mcp
 npm install
+npm test
 ```
 
-Run Shopify Server:
-
-```bash
-npm run shopify
-```
-
-Run Google Sheets Server:
-
-```bash
-npm run sheets
-```
-
-## Integration with Main Application
-
-The MCP servers integrate with the main inventory management application through the integration settings stored in the database. The main application can:
-
-- Store MCP server configuration in the integration settings
-- Use the MCP servers to sync data between local inventory and external services
-- Generate reports and export data to Google Sheets
-- Keep Shopify products in sync with local inventory
-
-## Example Usage
-
-### Shopify Sync Example
+### Quick Start
 
 ```javascript
-// Configure Shopify
-await mcpClient.call('shopify_configure', {
-  shopDomain: 'mystore.myshopify.com',
-  accessToken: 'shpat_xxx'
-});
-// Sync products
-await mcpClient.call('shopify_bulk_sync', {
-  products: [
-    {
-      local_id: 1,
-      title: 'Product 1',
-      price: '29.99',
-      sku: 'SKU001',
-      quantity: 100
-    }
-  ],
-  sync_mode: 'upsert'
-});
+import {
+  shopify_configure,
+  shopify_create_product,
+  shopify_list_products,
+  sheets_configure,
+  sheets_export_inventory,
+  sheets_import_inventory,
+} from './src/index.js';
+
+shopify_configure({ shopDomain: 'example.myshopify.com', accessToken: 'token' });
+const created = shopify_create_product({ title: 'Product 1', price: 10, sku: 'SKU1', quantity: 5 });
+const inventory = shopify_list_products();
+
+sheets_configure({ credentials: { client_email: 'service@example.com' }, spreadsheetId: 'sheet_1' });
+sheets_export_inventory({ products: inventory.items });
+const imported = sheets_import_inventory({});
 ```
 
-### Google Sheets Export Example
-
-```javascript
-// Configure Google Sheets
-await mcpClient.call('sheets_configure', {
-  credentials: serviceAccountCredentials,
-  spreadsheetId: '1234567890'
-});
-// Export inventory
-await mcpClient.call('sheets_export_inventory', {
-  products: inventoryData,
-  sheetName: 'Inventory',
-  clearExisting: true
-});
-// Create low stock report
-await mcpClient.call('sheets_create_report', {
-  reportType: 'low_stock',
-  data: {
-    products: lowStockProducts
-  }
-});
-```
+These utilities are backed by a shared in-memory store to keep the Shopify and Google Sheets flows aligned during local development and testing.
 
 ## Security Notes
 
