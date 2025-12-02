@@ -1,0 +1,18 @@
+{
+  "name": "mcp-servers",
+  "version": "0.1.0",
+  "description": "MCP servers for Shopify and Google Sheets integrations",
+  "type": "module",
+  "scripts": {
+    "shopify": "node shopify.js"
+  },
+  "keywords": [
+    "mcp",
+    "shopify",
+    "google-sheets",
+    "inventory"
+  ],
+  "author": "",
+  "license": "MIT",
+  "dependencies": {}
+}
