@@ -1,0 +1,13 @@
+{
+  "name": "gold-canna-working-model",
+  "version": "1.0.0",
+  "description": "Local MCP server utilities for Shopify and Google Sheets inventory synchronization.",
+  "type": "module",
+  "main": "src/index.js",
+  "scripts": {
+    "test": "node --test"
+  },
+  "engines": {
+    "node": ">=18"
+  }
+}
