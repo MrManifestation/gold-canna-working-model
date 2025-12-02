@@ -20,6 +20,11 @@ The Shopify MCP server provides comprehensive inventory management integration w
 - `shopify_bulk_sync`: Bulk sync products from local inventory to Shopify
 - `shopify_get_orders`: Retrieve orders from Shopify
 - `shopify_create_collection`: Create a product collection in Shopify
+- `listWebhookSubscriptions`: List webhook subscriptions via Admin GraphQL
+- `registerWebhookSubscription`: Register new webhook subscriptions via GraphQL
+- `deleteWebhookSubscription`: Delete webhook subscriptions via GraphQL
+- `getAppSubscriptionsFeed`: Retrieve active app subscription feed via GraphQL
+- `createAppSubscription`: Create Shopify app subscriptions with confirmation URLs
 
 **Setup:**
 
@@ -102,6 +107,42 @@ The MCP servers integrate with the main inventory management application through
 ### Shopify Sync Example
 
 ```javascript
+import { createShopifyClient } from './server/mcp/shopify.js';
+
+// Set up webhook subscriptions using the GraphQL helpers
+const shopify = createShopifyClient({
+  shopDomain: 'mystore.myshopify.com',
+  accessToken: 'shpat_xxx',
+});
+
+// Register a product update webhook
+await shopify.registerWebhookSubscription({
+  topic: 'PRODUCTS_UPDATE',
+  callbackUrl: 'https://example.com/webhooks/shopify/products',
+});
+
+// Review webhook subscriptions
+const webhookFeed = await shopify.listWebhookSubscriptions();
+console.log(webhookFeed);
+
+// Create an app subscription contract
+const subscription = await shopify.createAppSubscription({
+  name: 'Pro Plan',
+  returnUrl: 'https://example.com/billing/complete',
+  trialDays: 14,
+  lineItems: [
+    {
+      plan: {
+        appRecurringPricingDetails: {
+          price: { amount: 29.0, currencyCode: 'USD' },
+          interval: 'EVERY_30_DAYS',
+        },
+      },
+    },
+  ],
+});
+console.log(subscription.confirmationUrl);
+
 // Configure Shopify
 await mcpClient.call('shopify_configure', {
   shopDomain: 'mystore.myshopify.com',
